@@ -14,7 +14,7 @@ import java.util.regex.PatternSyntaxException;
  * @author W-nakayama
  */
 
-public class CsvReader {
+public class CsvParser {
     /**
      * CSVファイルを読み込み、カンマで区切ったデータを二次元配列に格納して返却する.
      *
@@ -23,7 +23,7 @@ public class CsvReader {
      * @throws FileNotFoundException 呼び出し元から渡されたパス(引数)で指定されているファイルが見つからなかった場合
      * @throws IOException           ファイルの読み込みに失敗した場合
      */
-    public String[][] readCsvWithoutComma(String path) throws FileNotFoundException, IOException {
+    public String[][] convertTo2dArray(String path) throws FileNotFoundException, IOException {
 
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(path))) {
 
