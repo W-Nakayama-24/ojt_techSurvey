@@ -14,9 +14,11 @@ import java.util.List;
 
 public class CsvParser2 {
 
-    // メンバ変数： 1レコードの途中に改行コードが入っているとき、以下の情報を保持したまま次の行に対して解析(parseメソッド)を実行するために宣言.
+    // メンバ変数： 1レコードの途中に改行コードが入っているとき、以下の情報を保持しながら次の行に対して解析(parseメソッド)を実行するために宣言.
     int doubleQuotationCount = 0; // 1レコードに登場するダブルクォーテーションを数える. データそのものか、データの区切りかを判別する際に使用
     boolean isRecordEnd = true; // 改行によってレコードが途切れているのか、真にレコードが終わっているかを判別する際に使用
+    // OSにより使用しているものが異なる改行コードをgetPropertyメソッドで用意
+    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
     /**
      * CSVファイルを読み込み、カンマで区切ったデータを二次元配列に格納して返却する.
@@ -52,7 +54,7 @@ public class CsvParser2 {
 
                 // 1レコード分すべてのデータの解析が完了した場合
                 // 1レコード分のデータが入ったリストを一次元配列に変換した後,一次元配列をコレクションするrecordListへ格納する
-                if (dataList != null && isRecordEnd) {
+                if (isRecordEnd) {
                     String[] parsedData = dataList.toArray(new String[dataList.size()]);
                     recordList.add(parsedData);
 
@@ -102,9 +104,6 @@ public class CsvParser2 {
      * @param dataList       カンマによって区切られたデータを1つずつ格納するリスト
      */
     private void parseLine(String readLineResult, StringBuffer stringBuffer, List<String> dataList) {
-
-        // OSにより使用しているものが異なる改行コードをgetPropertyメソッドで用意
-        final String LINE_SEPARATOR = System.getProperty("line.separator");
 
         for (int i = 0; i < readLineResult.length(); i++) {
 
