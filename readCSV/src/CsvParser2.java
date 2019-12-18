@@ -37,20 +37,20 @@ public class CsvParser2 {
             int numElements = 0;
 
             // 解析した1行分のデータを一時的に収めるバッファを宣言 parseメソッドで使用
-            StringBuffer stringBuffer = new StringBuffer();
+            StringBuilder stringBuilder = new StringBuilder();
 
             // 1レコードに存在しているデータをカンマで分割し、格納するリストを宣言
-            List<String> dataList = new ArrayList<String>();
+            List<String> dataList = new ArrayList<>();
 
             // 1レコード分のデータを一次元配列に変換した後,リストに格納する
-            List<String[]> recordList = new ArrayList<String[]>();
+            List<String[]> recordList = new ArrayList<>();
 
             // 読み込み,解析,コレクションへの格納を終端まで1レコードずつ実施する.
             String readLineResult;
             while ((readLineResult = bufferedReader.readLine()) != null) {
 
                 // 解析の処理をまとめたparseLineメソッドを呼び出す 引数で読込結果、Stringバッファ、1レコードのデータを格納するリストを渡す
-                parseLine(readLineResult, stringBuffer, dataList);
+                parseLine(readLineResult, stringBuilder, dataList);
 
                 // 1レコード分すべてのデータの解析が完了した場合
                 // 1レコード分のデータが入ったリストを一次元配列に変換した後,一次元配列をコレクションするrecordListへ格納する
@@ -98,10 +98,10 @@ public class CsvParser2 {
      * それぞれ「データそのもの」か「データの区切り」かを解析する. 解析後,データ毎に分けてリスト(dataList)へ格納する.
      *
      * @param readLineResult 親メソッド(convertTo2dArray)がCSVファイルの1行を読み込んだときの結果
-     * @param stringBuffer   条件分岐の結果,データそのものであると見なした文字だけを格納するバッファ
+     * @param stringBuilder  条件分岐の結果,データそのものであると見なした文字だけを格納するビルダー(可変長のシーケンス)
      * @param dataList       カンマによって区切られたデータを1つずつ格納するリスト
      */
-    private void parseLine(String readLineResult, StringBuffer stringBuffer, List<String> dataList) {
+    private void parseLine(String readLineResult, StringBuilder stringBuilder, List<String> dataList) {
 
         for (int i = 0; i < readLineResult.length(); i++) {
 
@@ -114,27 +114,27 @@ public class CsvParser2 {
             if (doubleQuotationCount % 2 == 0 && currentChar == ',') {
                 // 累計ダブルクォーテーションが偶数のときにカンマが来た場合
                 // ダブルクォーテーションの外側に位置するカンマは,データの区切りである.
-                // このカンマはappendせず,これまでバッファに入れていた文字をリストへ格納する
+                // このカンマはappendせず,これまでビルダーに入れていた文字をリストへ格納する
 
                 // ※ダブルクォーテーションを含むデータの場合
                 // エスケープ処理のダブルクォーテーションが末尾に1つだけ残るので,削除しておく
-                if (stringBuffer.indexOf("\"") != -1) {
-                    stringBuffer.deleteCharAt(stringBuffer.lastIndexOf("\""));
+                if (stringBuilder.indexOf("\"") != -1) {
+                    stringBuilder.deleteCharAt(stringBuilder.lastIndexOf("\""));
                 }
-                dataList.add(stringBuffer.toString());
-                stringBuffer.setLength(0);
+                dataList.add(stringBuilder.toString());
+                stringBuilder.setLength(0);
 
             } else if (doubleQuotationCount % 2 != 0 && currentChar == ',') {
 
                 // 累計ダブルクォーテーションが奇数のときにカンマが来た場合
                 // データそのものとしてのカンマである.まだ終わりではないのでカンマをappendする
-                stringBuffer.append(currentChar);
+                stringBuilder.append(currentChar);
 
             } else if (doubleQuotationCount % 2 == 0 && currentChar == '"') {
 
                 // 累計ダブルクォーテーションが偶数になったとき
                 // データそのものと見なし、このダブルクォーテーションをappendする
-                stringBuffer.append(currentChar);
+                stringBuilder.append(currentChar);
 
             } else if (doubleQuotationCount % 2 != 0 && currentChar == '"') {
 
@@ -144,7 +144,7 @@ public class CsvParser2 {
             } else {
 
                 // ダブルクォート、カンマ以外の文字はデータそのものと見なし,appendする
-                stringBuffer.append(currentChar);
+                stringBuilder.append(currentChar);
 
             }
 
@@ -156,7 +156,7 @@ public class CsvParser2 {
 
             isRecordEnd = false;
             // データそのものとして入っていた改行コードはreadLineの結果には入っていないので補完する
-            stringBuffer.append(LINE_SEPARATOR);
+            stringBuilder.append(LINE_SEPARATOR);
 
         } else {
 
@@ -164,12 +164,12 @@ public class CsvParser2 {
 
             // ※最後のデータがダブルクォーテーションを含んでいる場合
             // エスケープ処理のダブルクォートが末尾に1つだけ残るので,削除しておく
-            if (stringBuffer.indexOf("\"") != -1) {
-                stringBuffer.deleteCharAt(stringBuffer.lastIndexOf("\""));
+            if (stringBuilder.indexOf("\"") != -1) {
+                stringBuilder.deleteCharAt(stringBuilder.lastIndexOf("\""));
             }
-            dataList.add(stringBuffer.toString());
+            dataList.add(stringBuilder.toString());
 
-            stringBuffer.setLength(0);
+            stringBuilder.setLength(0);
             doubleQuotationCount = 0;
             isRecordEnd = true;
 
