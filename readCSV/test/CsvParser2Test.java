@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-public class CsvParser10Test {
+public class CsvParser2Test {
 
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
@@ -97,6 +97,30 @@ public class CsvParser10Test {
         assertThat(data2dArray[1][0], is("1"));
         assertThat(data2dArray[1][1], is("おいしい水"));
         assertThat(data2dArray[1][2], is("100"));
+    }
+
+    /**
+     * 1つのデータにカンマ,ダブルクォーテーション,改行コードが複数入っている場合,それらを含めて二次元配列に変換する.
+     *
+     * @throws IOException               ファイルの読み込みに失敗した場合,
+     *                                   呼び出し元から渡されたパス(引数)で指定されているファイルが見つからなかった場合
+     * @throws IrregularColumnsException 独自例外：解析したCSVファイルのデータ数が,レコード毎に異なっている場合
+     */
+    @Test
+    public void dataWithVariousChar() throws IOException, IrregularColumnsException {
+        CsvParser2 csvParser = new CsvParser2();
+        String[][] data2dArray = null;
+        data2dArray = csvParser.convertTo2dArray("c:\\csvTest\\dataWithVariousChar.csv");
+
+        assertThat(data2dArray[0][0], is("東\"\"京," + LINE_SEPARATOR + "名,,古,,屋," + LINE_SEPARATOR + "大" + LINE_SEPARATOR
+                + LINE_SEPARATOR + "阪"));
+        assertThat(data2dArray[0][1], is("横浜, 京都, 博多"));
+        assertThat(data2dArray[0][2], is("神\"\"戸, 仙,,台, 札幌"));
+
+        assertThat(data2dArray[1][0], is("03, 052, 06"));
+        assertThat(data2dArray[1][1], is("0\"4\"5," + LINE_SEPARATOR + "0,,7,,5," + LINE_SEPARATOR + "09"
+                + LINE_SEPARATOR + LINE_SEPARATOR + "22"));
+        assertThat(data2dArray[1][2], is("0\"\"78, 0,,22, 011"));
     }
 
     /**
