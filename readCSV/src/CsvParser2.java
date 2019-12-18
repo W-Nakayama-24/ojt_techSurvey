@@ -14,7 +14,7 @@ import java.util.List;
 
 public class CsvParser2 {
 
-    // メンバ変数： 1レコードの途中に改行コードが入っているとき、以下の情報を保持しながら次の行に対して解析(parseメソッド)を実行するために宣言.
+    // メンバ変数： 1レコードの途中に改行コードが入っているとき、以下の情報を保持したまま次の行に対して解析(parseメソッド)を実行するために宣言.
     int doubleQuotationCount = 0; // 1レコードに登場するダブルクォーテーションを数える. データそのものか、データの区切りかを判別する際に使用
     boolean isRecordEnd = true; // 改行によってレコードが途切れているのか、真にレコードが終わっているかを判別する際に使用
     // OSにより使用しているものが異なる改行コードをgetPropertyメソッドで用意
@@ -58,10 +58,8 @@ public class CsvParser2 {
                     String[] parsedData = dataList.toArray(new String[dataList.size()]);
                     recordList.add(parsedData);
 
-                    // 1レコードあたりにデータがいくつあったか(要素数)を変数numElementsに保持させる
                     numElements = dataList.size();
                     dataList.clear();
-
                 }
 
             }
@@ -71,7 +69,7 @@ public class CsvParser2 {
             int previousNumberOfData = 0;
             boolean isFirst = true;
             for (int i = 0; i < recordList.size(); i++) {
-                if (isFirst == true) {
+                if (isFirst) {
                     isFirst = false;
                     previousNumberOfData = recordList.get(i).length;
                 } else {
@@ -107,14 +105,13 @@ public class CsvParser2 {
 
         for (int i = 0; i < readLineResult.length(); i++) {
 
-            char nc = readLineResult.charAt(i);
+            char currentChar = readLineResult.charAt(i);
 
-            // ダブルクォーテーションを参照したとき、カウントを増やす ⇒ 「登場したダブルクォーテーションの累計が奇数か,偶数か」を解析に利用する
-            if (nc == '"') {
+            if (currentChar == '"') {
                 doubleQuotationCount++;
             }
 
-            if (doubleQuotationCount % 2 == 0 && nc == ',') {
+            if (doubleQuotationCount % 2 == 0 && currentChar == ',') {
                 // 累計ダブルクォーテーションが偶数のときにカンマが来た場合
                 // ダブルクォーテーションの外側に位置するカンマは,データの区切りである.
                 // このカンマはappendせず,これまでバッファに入れていた文字をリストへ格納する
@@ -125,23 +122,21 @@ public class CsvParser2 {
                     stringBuffer.deleteCharAt(stringBuffer.lastIndexOf("\""));
                 }
                 dataList.add(stringBuffer.toString());
-
-                // バッファを初期化
                 stringBuffer.setLength(0);
 
-            } else if (doubleQuotationCount % 2 != 0 && nc == ',') {
+            } else if (doubleQuotationCount % 2 != 0 && currentChar == ',') {
 
                 // 累計ダブルクォーテーションが奇数のときにカンマが来た場合
                 // データそのものとしてのカンマである.まだ終わりではないのでカンマをappendする
-                stringBuffer.append(nc);
+                stringBuffer.append(currentChar);
 
-            } else if (doubleQuotationCount % 2 == 0 && nc == '"') {
+            } else if (doubleQuotationCount % 2 == 0 && currentChar == '"') {
 
                 // 累計ダブルクォーテーションが偶数になったとき
                 // データそのものと見なし、このダブルクォーテーションをappendする
-                stringBuffer.append(nc);
+                stringBuffer.append(currentChar);
 
-            } else if (doubleQuotationCount % 2 != 0 && nc == '"') {
+            } else if (doubleQuotationCount % 2 != 0 && currentChar == '"') {
 
                 // 累計ダブルクォーテーションが奇数になったとき
                 // こちらはエスケープ処理で増やした分のダブルクォートと見なし、appendしない
@@ -149,7 +144,7 @@ public class CsvParser2 {
             } else {
 
                 // ダブルクォート、カンマ以外の文字はデータそのものと見なし,appendする
-                stringBuffer.append(nc);
+                stringBuffer.append(currentChar);
 
             }
 
@@ -159,9 +154,7 @@ public class CsvParser2 {
         // 途中に混ざった改行コードまでしか、BufferedReader.readLineメソッドで読み込みが出来ていない ⇒ レコードの終わりではない
         if (doubleQuotationCount % 2 != 0) {
 
-            // レコードの終わりではないことをconvertTo2dArrayメソッドに伝える ⇒ 配列への変換・リストへの格納を行わずに次の行を続けて読み込む
             isRecordEnd = false;
-
             // データそのものとして入っていた改行コードはreadLineの結果には入っていないので補完する
             stringBuffer.append(LINE_SEPARATOR);
 
@@ -174,20 +167,12 @@ public class CsvParser2 {
             if (stringBuffer.indexOf("\"") != -1) {
                 stringBuffer.deleteCharAt(stringBuffer.lastIndexOf("\""));
             }
-
-            // これまでバッファに入れていた文字をリストへ格納
             dataList.add(stringBuffer.toString());
 
-            // バッファの初期化
             stringBuffer.setLength(0);
-
-            // 1レコード分の解析が終わったことをconvertTo2dArrayメソッドに伝える
-            if (isRecordEnd == false) {
-                isRecordEnd = true;
-            }
-
-            // 累計ダブルクォーテーションのカウントを初期化する
             doubleQuotationCount = 0;
+            isRecordEnd = true;
+
         }
     }
 }
