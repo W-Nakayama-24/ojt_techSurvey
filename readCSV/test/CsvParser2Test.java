@@ -3,6 +3,7 @@ package readCSV;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.junit.Test;
@@ -10,6 +11,7 @@ import org.junit.Test;
 public class CsvParser2Test {
 
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String FILE_SEPARATOR = File.separator;
 
     /**
      * カンマで区切られた2行×3列のデータを解析し,カンマを除いた部分のみ二次元配列に変換するテスト
@@ -22,7 +24,7 @@ public class CsvParser2Test {
     public void productData() throws IOException, IrregularColumnsException {
         CsvParser2 csvParser = new CsvParser2();
         String[][] data2dArray = null;
-        data2dArray = csvParser.convertTo2dArray("c:\\csvTest\\productData.csv");
+        data2dArray = csvParser.convertTo2dArray("csv" + FILE_SEPARATOR + "productData.csv");
 
         assertThat(data2dArray[0][0], is("productID"));
         assertThat(data2dArray[0][1], is("name"));
@@ -44,7 +46,7 @@ public class CsvParser2Test {
     public void dataWithComma() throws IOException, IrregularColumnsException {
         CsvParser2 csvParser = new CsvParser2();
         String[][] data2dArray = null;
-        data2dArray = csvParser.convertTo2dArray("c:\\csvTest\\dataWithComma.csv");
+        data2dArray = csvParser.convertTo2dArray("csv" + FILE_SEPARATOR + "dataWithComma.csv");
 
         assertThat(data2dArray[0][0], is("東京, 名古屋, 大阪"));
         assertThat(data2dArray[0][1], is("横浜, 京都, 博多"));
@@ -66,7 +68,7 @@ public class CsvParser2Test {
     public void dataWithCRLF() throws IOException, IrregularColumnsException {
         CsvParser2 csvParser = new CsvParser2();
         String[][] data2dArray = null;
-        data2dArray = csvParser.convertTo2dArray("c:\\csvTest\\dataWithCRLF.csv");
+        data2dArray = csvParser.convertTo2dArray("csv" + FILE_SEPARATOR + "dataWithCRLF.csv");
 
         assertThat(data2dArray[0][0], is("東京," + LINE_SEPARATOR + "名古屋," + LINE_SEPARATOR + "大阪"));
         assertThat(data2dArray[0][1], is("横浜, 京都, 博多"));
@@ -88,7 +90,7 @@ public class CsvParser2Test {
     public void dataWithDoubleQuote() throws IOException, IrregularColumnsException {
         CsvParser2 csvParser = new CsvParser2();
         String[][] data2dArray = null;
-        data2dArray = csvParser.convertTo2dArray("c:\\csvTest\\dataWithDoubleQuote.csv");
+        data2dArray = csvParser.convertTo2dArray("csv" + FILE_SEPARATOR + "dataWithDoubleQuote.csv");
 
         assertThat(data2dArray[0][0], is("\"productID\""));
         assertThat(data2dArray[0][1], is("\"name\""));
@@ -110,7 +112,7 @@ public class CsvParser2Test {
     public void dataWithVariousChar() throws IOException, IrregularColumnsException {
         CsvParser2 csvParser = new CsvParser2();
         String[][] data2dArray = null;
-        data2dArray = csvParser.convertTo2dArray("c:\\csvTest\\dataWithVariousChar.csv");
+        data2dArray = csvParser.convertTo2dArray("csv" + FILE_SEPARATOR + "dataWithVariousChar.csv");
 
         assertThat(data2dArray[0][0], is("東\"\"京," + LINE_SEPARATOR + "名,,古,,屋," + LINE_SEPARATOR + "大" + LINE_SEPARATOR
                 + LINE_SEPARATOR + "阪"));
@@ -133,7 +135,7 @@ public class CsvParser2Test {
     @Test(expected = IOException.class)
     public void wrongPath() throws IOException, IrregularColumnsException {
         CsvParser2 csvParser = new CsvParser2();
-        csvParser.convertTo2dArray("c:\\csvTest\\hogehoge.csv");
+        csvParser.convertTo2dArray("csv" + FILE_SEPARATOR + "hogehoge.csv");
     }
 
     /**
@@ -146,7 +148,7 @@ public class CsvParser2Test {
     @Test(expected = IrregularColumnsException.class)
     public void irregularColsData() throws IOException, IrregularColumnsException {
         CsvParser2 csvParser = new CsvParser2();
-        csvParser.convertTo2dArray("c:\\csvTest\\irregularColsData.csv");
+        csvParser.convertTo2dArray("csv" + FILE_SEPARATOR + "irregularColsData.csv");
     }
 
 }
